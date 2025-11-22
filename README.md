@@ -1,1 +1,1 @@
-Task queue system with Redis.
+Task queue system with Redis
