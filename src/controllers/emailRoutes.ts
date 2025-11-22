@@ -39,7 +39,7 @@ router.post('/send-email', async (req, res) => {
  * Schedules a recurring email job based on the provided cron pattern
  */
 router.post('/send-cron-email', async (req, res) => {
-    const { to, subject, body, cron } = req.body;
+    const { to, subject, body } = req.body;
 
     const data = { to, subject, body };
     if (!to || !subject || !body) {
