@@ -1,14 +1,33 @@
 import express from 'express';
 import { emailQueue } from './queues/emailQueue';
-import { log } from 'console';
+import { createBullBoard }
+    from '@bull-board/api';
+import { BullMQAdapter }
+    from '@bull-board/api/bullMQAdapter';
+import { ExpressAdapter }
+    from '@bull-board/express';
 
 const app = express();
 app.use(express.json());
+
+// Bull Board setup
+const serverAdapter = new
+    ExpressAdapter();
+serverAdapter.setBasePath('/admin/queues');
+
+createBullBoard({
+    queues: [new
+        BullMQAdapter(emailQueue)],
+    serverAdapter,
+});
+
 
 // Health check
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
+
+app.use('/admin/queues', serverAdapter.getRouter());
 
 // Add email job
 app.post('/send-email', async (req, res) => {
