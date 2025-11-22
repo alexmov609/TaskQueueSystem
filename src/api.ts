@@ -1,5 +1,6 @@
 import express from 'express';
 import { emailQueue } from './queues/emailQueue';
+import emailRoutes from './controllers/emailRoutes';
 import { createBullBoard }
     from '@bull-board/api';
 import { BullMQAdapter }
@@ -17,33 +18,13 @@ serverAdapter.setBasePath('/admin/queues');
 
 createBullBoard({
     queues: [new
-        BullMQAdapter(emailQueue)],
+        BullMQAdapter(emailQueue)
+    ],
     serverAdapter,
 });
-
-
-// Health check
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
-});
-
 app.use('/admin/queues', serverAdapter.getRouter());
 
-// Add email job
-app.post('/send-email', async (req, res) => {
-    const { to, subject, body } = req.body;
-
-    if (!to || !subject || !body) {
-        return res.status(400).json({ error: 'Missing required fields' });
-    }
-
-    const job = await emailQueue.add('send-email', { to, subject, body });
-
-    res.json({
-        message: 'Email job queued',
-        jobId: job.id,
-    });
-});
+app.use('/email', emailRoutes);
 
 // Check job status
 app.get('/job/:id', async (req, res) => {
