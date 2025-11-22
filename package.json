@@ -8,7 +8,7 @@
     "start:api": "node dist/api.js",
     "start:worker": "node dist/worker.js",
     "dev:api": "nodemon --exec ts-node src/api.ts",
-    "dev:worker": "nodemon --exec ts-node src/worker.ts",
+    "dev:worker": "nodemon --exec ts-node src/workers/worker.ts",
     "clean": "rm -rf dist",
     "lint": "eslint src/**/*.ts"
   },
