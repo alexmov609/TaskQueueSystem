@@ -2,6 +2,14 @@ import { Queue } from 'bullmq';
 import { redisConnection } from '../config/redis';
 import { EmailJobData } from '../types/jobs';
 
+/**
+ * Email Queue
+ * Queue Options:
+ * https://api.docs.bullmq.io/interfaces/v5.QueueOptions.html
+ * 
+ * Default Job Options:
+ * https://api.docs.bullmq.io/interfaces/v5.DefaultJobOptions.html
+ */
 export const emailQueue = new Queue<EmailJobData>('email-queue', {
     connection: redisConnection,
     defaultJobOptions: {

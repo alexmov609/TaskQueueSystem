@@ -21,11 +21,11 @@ router.post('/send-email', async (req, res) => {
     let job;
 
     if (convertedDelay) {
-        job = await emailQueue.add('email', data, {
+        job = await emailQueue.add('delayed-email', data, {
             delay: convertedDelay
         })
     } else {
-        job = await emailQueue.add('send-email', data);
+        job = await emailQueue.add('email', data);
     }
 
     res.json({

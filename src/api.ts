@@ -7,6 +7,7 @@ import { BullMQAdapter }
     from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter }
     from '@bull-board/express';
+import EmailService from './services/EmailService';
 
 const app = express();
 app.use(express.json());
@@ -16,12 +17,21 @@ const serverAdapter = new
     ExpressAdapter();
 serverAdapter.setBasePath('/admin/queues');
 
+const emailService = EmailService.getInstance();
+
+async function sendMail() {
+    await emailService.sendEmailAlert();
+}
+
+// sendMail();
+
 createBullBoard({
     queues: [new
         BullMQAdapter(emailQueue)
     ],
     serverAdapter,
 });
+
 app.use('/admin/queues', serverAdapter.getRouter());
 
 app.use('/email', emailRoutes);
