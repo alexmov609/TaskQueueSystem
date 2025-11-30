@@ -1,6 +1,7 @@
 
 import nodemailer from 'nodemailer';
 import config from '../config/config';
+import { JobData } from '../types/jobs';
 
 class EmailService {
     private static instance: EmailService;
@@ -76,7 +77,7 @@ class EmailService {
     /**
      * Send unhealthy server alert email
      */
-    async sendEmailAlert(): Promise<void> {
+    async sendEmailAlert(jobData: JobData): Promise<void> {
         if (!this.transporter || !config.email.enabled) {
             console.log('Email service not configured. Skipping email notification.');
             return;

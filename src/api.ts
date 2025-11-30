@@ -1,59 +1,59 @@
 import express from 'express';
-import { emailQueue } from './queues/emailQueue';
+import { emailQueue, smsQueue } from './queues/queueFactory';
 import emailRoutes from './controllers/emailRoutes';
-import { createBullBoard }
-    from '@bull-board/api';
-import { BullMQAdapter }
-    from '@bull-board/api/bullMQAdapter';
-import { ExpressAdapter }
-    from '@bull-board/express';
-import EmailService from './services/EmailService';
+import smsRoutes from './controllers/smsRoutes';
+import { createBullBoard } from '@bull-board/api';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
+import { ExpressAdapter } from '@bull-board/express';
 
 const app = express();
 app.use(express.json());
 
 // Bull Board setup
-const serverAdapter = new
-    ExpressAdapter();
+const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath('/admin/queues');
 
-const emailService = EmailService.getInstance();
-
-async function sendMail() {
-    await emailService.sendEmailAlert();
-}
-
-// sendMail();
-
 createBullBoard({
-    queues: [new
-        BullMQAdapter(emailQueue)
+    queues: [
+        new BullMQAdapter(emailQueue),
+        new BullMQAdapter(smsQueue)
     ],
     serverAdapter,
 });
 
+// UI dahsboard, http://localhost:3000/admin/queues
 app.use('/admin/queues', serverAdapter.getRouter());
 
 app.use('/email', emailRoutes);
+app.use('/sms', smsRoutes);
 
-// Check job status
-app.get('/job/:id', async (req, res) => {
-    const job = await emailQueue.getJob(req.params.id);
+// // Check job status - searches both queues
+// app.get('/job/:id', async (req, res) => {
+//     // Try to find job in email queue first
+//     let job = await emailQueue.getJob(req.params.id);
+//     let queueType = 'email';
 
-    if (!job) {
-        return res.status(404).json({ error: 'Job not found' });
-    }
+//     // If not found, try SMS queue
+//     if (!job) {
+//         job = await smsQueue.getJob(req.params.id);
+//         queueType = 'sms';
+//     }
 
-    const state = await job.getState();
+//     if (!job) {
+//         return res.status(404).json({ error: 'Job not found in any queue' });
+//     }
 
-    res.json({
-        id: job.id,
-        state,
-        data: job.data,
-        progress: job.progress,
-        failedReason: job.failedReason,
-    });
-});
+//     const state = await job.getState();
+
+//     res.json({
+//         id: job.id,
+//         queueType,
+//         state,
+//         data: job.data,
+//         progress: job.progress,
+//         failedReason: job.failedReason,
+//     });
+// });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

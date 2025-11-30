@@ -1,5 +1,5 @@
 import express from 'express';
-import { emailQueue } from '../queues/emailQueue';
+import { emailQueue } from '../queues/queueFactory';
 const router = express.Router();
 
 // Health check

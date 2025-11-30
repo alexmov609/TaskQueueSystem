@@ -4,8 +4,10 @@ export interface EmailJobData {
     body: string;
 }
 
-export interface ImageJobData {
-    imageUrl: string;
-    userId: string;
-    operations: ('resize' | 'compress' | 'watermark')[];
+export interface SmsJobData {
+    to: string;
+    body: string;
 }
+
+// Union type for all job data types
+export type JobData = EmailJobData | SmsJobData;
