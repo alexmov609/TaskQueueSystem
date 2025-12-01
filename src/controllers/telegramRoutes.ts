@@ -10,7 +10,7 @@ router.get('/health', (req, res) => {
 /**
  * Telegram notification job
  */
-router.post('/send-notification', async (req, res) => {
+router.post('/send-telegram-notification', async (req, res) => {
     const { chatId, message, delay } = req.body;
 
     // Use default chatId if not provided
