@@ -8,7 +8,7 @@ export async function processTelegramJob(job: Job<TelegramJobData>): Promise<voi
     console.log(`Processing Telegram job ${job.id}`);
 
     const telegramService = TelegramService.getInstance();
-    await telegramService.sendMessage(chatId, message);
+    await telegramService.sendMessageBot(chatId, message);
 
     console.log(`Telegram message sent to chat ${chatId}`);
 }

@@ -44,7 +44,7 @@ class TelegramService {
     /**
      * Send a message to a specific chat
      */
-    async sendMessage(chatId: string, message: string): Promise<void> {
+    async sendMessageBot(chatId: string, message: string): Promise<void> {
         if (!this.bot || !config.telegram.enabled) {
             console.log('Telegram service not configured. Skipping notification.');
             return;
@@ -70,7 +70,7 @@ class TelegramService {
             return;
         }
 
-        await this.sendMessage(chatId, message);
+        await this.sendMessageBot(chatId, message);
     }
 }
 
