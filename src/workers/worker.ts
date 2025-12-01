@@ -1,7 +1,7 @@
 import { Worker } from 'bullmq';
 import { redisConnection } from '../config/redis';
 import { processEmailJob } from '../jobs/emailJobs';
-import { processTelegramJob } from '../jobs/smsJobs';
+import { processTelegramJob } from '../jobs/telegramJobs';
 import { emailQueue, telegramQueue } from '../queues/queueFactory';
 
 // Create worker for email queue

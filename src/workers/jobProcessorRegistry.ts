@@ -1,6 +1,6 @@
 import { Job } from 'bullmq';
 import { processEmailJob } from '../jobs/emailJobs';
-import { processTelegramJob } from '../jobs/smsJobs';
+import { processTelegramJob } from '../jobs/telegramJobs';
 import { EmailJobData, TelegramJobData } from '../types/jobs';
 
 /**
