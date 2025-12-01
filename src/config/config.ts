@@ -13,6 +13,11 @@ interface Config {
         from: string;
         alertRecipient: string;
     };
+    telegram: {
+        enabled: boolean;
+        botToken: string;
+        defaultChatId: string;
+    };
 }
 
 const config: Config = {
@@ -25,6 +30,11 @@ const config: Config = {
         pass: process.env.EMAIL_PASS || '',
         from: process.env.EMAIL_FROM || '',
         alertRecipient: process.env.EMAIL_ALERT_RECIPIENT || '',
+    },
+    telegram: {
+        enabled: process.env.TELEGRAM_ENABLED === 'true',
+        botToken: process.env.TELEGRAM_BOT_TOKEN || '',
+        defaultChatId: process.env.TELEGRAM_DEFAULT_CHAT_ID || '',
     }
 }
 

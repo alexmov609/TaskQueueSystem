@@ -4,10 +4,10 @@ export interface EmailJobData {
     body: string;
 }
 
-export interface SmsJobData {
-    to: string;
-    body: string;
+export interface TelegramJobData {
+    chatId: string;
+    message: string;
 }
 
 // Union type for all job data types
-export type JobData = EmailJobData | SmsJobData;
+export type JobData = EmailJobData | TelegramJobData;

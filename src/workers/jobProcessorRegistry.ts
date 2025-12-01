@@ -1,7 +1,7 @@
 import { Job } from 'bullmq';
 import { processEmailJob } from '../jobs/emailJobs';
-import { processSmsJob } from '../jobs/smsJobs';
-import { EmailJobData, SmsJobData } from '../types/jobs';
+import { processTelegramJob } from '../jobs/smsJobs';
+import { EmailJobData, TelegramJobData } from '../types/jobs';
 
 /**
  * Generic Job Processor Type
@@ -15,7 +15,7 @@ export type JobProcessor<T = any> = (job: Job<T>) => Promise<void>;
  */
 export const jobProcessorRegistry: Record<string, JobProcessor> = {
     'email-queue': processEmailJob as JobProcessor<EmailJobData>,
-    'sms-queue': processSmsJob as JobProcessor<SmsJobData>,
+    'sms-queue': processTelegramJob as JobProcessor<TelegramJobData>,
 };
 
 /**

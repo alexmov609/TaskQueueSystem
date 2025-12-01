@@ -1,6 +1,6 @@
 import { Queue, QueueOptions } from 'bullmq';
 import { redisConnection } from '../config/redis';
-import { EmailJobData, SmsJobData } from '../types/jobs';
+import { EmailJobData, TelegramJobData } from '../types/jobs';
 
 /**
  * Queue Factory
@@ -38,7 +38,7 @@ function createQueue<T>(queueName: string, customOptions?: Partial<QueueOptions>
 
 // Create specific queues using the factory
 export const emailQueue = createQueue<EmailJobData>('email-queue');
-export const smsQueue = createQueue<SmsJobData>('sms-queue');
+export const telegramQueue = createQueue<TelegramJobData>('telegram-queue');
 
 // Export the factory for creating additional queues
 export { createQueue };

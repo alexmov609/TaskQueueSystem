@@ -1,19 +1,14 @@
 import { Job } from 'bullmq';
-import { SmsJobData } from '../types/jobs';
+import { TelegramJobData } from '../types/jobs';
+import TelegramService from '../services/TelegramService';
 
-export async function processSmsJob(job: Job<SmsJobData>): Promise<void> {
-    const { to, body } = job.data;
+export async function processTelegramJob(job: Job<TelegramJobData>): Promise<void> {
+    const { chatId, message } = job.data;
 
-    console.log(`Processing SMS job ${job.id}`);
+    console.log(`Processing Telegram job ${job.id}`);
 
-    // Simulate sending SMS (replace with real SMS service like Twilio, AWS SNS, etc.)
-    await fakeSendSms(to, body);
+    const telegramService = TelegramService.getInstance();
+    await telegramService.sendMessage(chatId, message);
 
-    console.log(`SMS sent to ${to}`);
-}
-
-async function fakeSendSms(to: string, body: string): Promise<void> {
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    console.log(`[FAKE SMS] To: ${to}, Message: ${body}`);
+    console.log(`Telegram message sent to chat ${chatId}`);
 }

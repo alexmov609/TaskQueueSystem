@@ -1,7 +1,7 @@
 import express from 'express';
-import { emailQueue, smsQueue } from './queues/queueFactory';
+import { emailQueue, telegramQueue } from './queues/queueFactory';
 import emailRoutes from './controllers/emailRoutes';
-import smsRoutes from './controllers/smsRoutes';
+import telegramRoutes from './controllers/telegramRoutes'
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
@@ -16,7 +16,7 @@ serverAdapter.setBasePath('/admin/queues');
 createBullBoard({
     queues: [
         new BullMQAdapter(emailQueue),
-        new BullMQAdapter(smsQueue)
+        new BullMQAdapter(telegramQueue)
     ],
     serverAdapter,
 });
@@ -25,7 +25,7 @@ createBullBoard({
 app.use('/admin/queues', serverAdapter.getRouter());
 
 app.use('/email', emailRoutes);
-app.use('/sms', smsRoutes);
+app.use('/notification', telegramRoutes);
 
 // // Check job status - searches both queues
 // app.get('/job/:id', async (req, res) => {

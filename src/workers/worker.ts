@@ -1,8 +1,8 @@
 import { Worker } from 'bullmq';
 import { redisConnection } from '../config/redis';
 import { processEmailJob } from '../jobs/emailJobs';
-import { processSmsJob } from '../jobs/smsJobs';
-import { emailQueue, smsQueue } from '../queues/queueFactory';
+import { processTelegramJob } from '../jobs/smsJobs';
+import { emailQueue, telegramQueue } from '../queues/queueFactory';
 
 // Create worker for email queue
 const emailWorker = new Worker('email-queue', processEmailJob, {
@@ -11,7 +11,7 @@ const emailWorker = new Worker('email-queue', processEmailJob, {
 });
 
 // Create worker for SMS queue
-const smsWorker = new Worker('sms-queue', processSmsJob, {
+const telegramWorker = new Worker('telegram-queue', processTelegramJob, {
     connection: redisConnection,
     concurrency: 5,
 });
@@ -19,7 +19,7 @@ const smsWorker = new Worker('sms-queue', processSmsJob, {
 // Set global concurrency for both queues
 async function setGlobalConcurrency() {
     await emailQueue.setGlobalConcurrency(2);
-    await smsQueue.setGlobalConcurrency(2);
+    await telegramQueue.setGlobalConcurrency(2);
 }
 
 setGlobalConcurrency();
@@ -38,16 +38,16 @@ emailWorker.on('ready', () => {
 });
 
 // SMS worker event handlers
-smsWorker.on('completed', (job) => {
-    console.log(`✓ [SMS] Job ${job.id} completed`);
+telegramWorker.on('completed', (job) => {
+    console.log(`✓ [Telegram] Job ${job.id} completed`);
 });
 
-smsWorker.on('failed', (job, err) => {
-    console.error(`✗ [SMS] Job ${job?.id} failed: ${err.message}`);
+telegramWorker.on('failed', (job, err) => {
+    console.error(`✗ [Telegram] Job ${job?.id} failed: ${err.message}`);
 });
 
-smsWorker.on('ready', () => {
-    console.log('SMS worker is ready and listening for jobs...');
+telegramWorker.on('ready', () => {
+    console.log('Telegram worker is ready and listening for jobs...');
 });
 
 console.log('Workers started - listening for email and SMS jobs');
