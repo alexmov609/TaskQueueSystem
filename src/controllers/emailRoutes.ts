@@ -1,5 +1,7 @@
 import express from 'express';
 import { emailQueue } from '../queues/queueFactory';
+import { validateEmails } from '../validations/emailValidations';
+import { log } from 'console';
 const router = express.Router();
 
 // Health check
@@ -11,26 +13,35 @@ router.get('/health', (req, res) => {
 router.post('/send-email', async (req, res) => {
     const { to, subject, body, delay } = req.body;
 
-    const data = { to, subject, body };
     if (!to || !subject || !body) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    let validatedEmails = validateEmails(Array.isArray(to) ? to : [to]);
+    if (validatedEmails.length === 0) {
+        return res.status(400).json({ error: 'No valid email addresses provided' });
+    }
+
     // Get delay in milliseconds if provided
     const convertedDelay = delay ? parseInt(delay, 10) : false;
-    let job;
 
-    if (convertedDelay) {
-        job = await emailQueue.add('delayed-email', data, {
-            delay: convertedDelay
+    const jobs = await Promise.all(
+        validatedEmails.map(async (email: string) => {
+            const data = { to: email, subject, body };
+            if (convertedDelay) {
+                return await emailQueue.add('delayed-email', data, {
+                    delay: convertedDelay
+                });
+            } else {
+                return await emailQueue.add('email', data);
+            }
         })
-    } else {
-        job = await emailQueue.add('email', data);
-    }
+    );
 
     res.json({
         message: 'Email job queued',
-        jobId: job.id,
+        jobIds: jobs.map(job => job.id),
+        count: jobs.length
     });
 });
 
