@@ -1,5 +1,5 @@
 export interface EmailJobData {
-    to: string;
+    to: string[];
     subject: string;
     body: string;
 }

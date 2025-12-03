@@ -31,7 +31,7 @@ router.post('/send-email', async (req, res) => {
 
     const jobs = await Promise.all(
         validatedEmails.map(async (email: string) => {
-            const data = { to: email, subject: validatedSubject, body: validatedBody };
+            const data = { to: [email], subject: validatedSubject, body: validatedBody };
             if (convertedDelay) {
                 return await emailQueue.add('delayed-email', data, {
                     delay: convertedDelay
@@ -71,7 +71,7 @@ router.post('/send-cron-email', async (req, res) => {
 
     const jobs = await Promise.all(
         validatedEmails.map(async (email: string) => {
-            const data = { to: email, subject: validatedSubject, body: validatedBody };
+            const data = { to: [email], subject: validatedSubject, body: validatedBody };
             return await emailQueue.upsertJobScheduler('cron-email', {
                 pattern: cronPattern || '0 * * * *',
             }, { data: data })

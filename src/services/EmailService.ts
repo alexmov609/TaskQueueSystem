@@ -1,8 +1,7 @@
 
 import nodemailer from 'nodemailer';
 import config from '../config/config';
-import { JobData } from '../types/jobs';
-
+import { EmailJobData } from '../types/jobs';
 class EmailService {
     private static instance: EmailService;
     private transporter: nodemailer.Transporter | null = null;
@@ -77,7 +76,7 @@ class EmailService {
     /**
      * Send unhealthy server alert email
      */
-    async sendEmailAlert(jobData: JobData): Promise<void> {
+    async sendEmailAlert(jobData: EmailJobData): Promise<void> {
         if (!this.transporter || !config.email.enabled) {
             console.log('Email service not configured. Skipping email notification.');
             return;
@@ -85,10 +84,9 @@ class EmailService {
 
         try {
             const htmlContent = this.generateAlertEmail();
-
             const mailOptions = {
                 from: config.email.from,
-                to: config.email.alertRecipient,
+                to: jobData.to,
                 subject: `Job Alert`,
                 html: htmlContent,
             };
