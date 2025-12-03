@@ -1,5 +1,6 @@
 import express from 'express';
 import { telegramQueue } from '../queues/queueFactory';
+import { sanitize } from '../validations/validations';
 import config from '../config/config';
 const router = express.Router();
 
@@ -14,16 +15,18 @@ router.post('/send-telegram-notification', async (req, res) => {
     const { chatId, message, delay } = req.body;
 
     // Use default chatId if not provided
-    const finalChatId = chatId || config.telegram.defaultChatId;
+    let finalChatId = chatId || config.telegram.defaultChatId;
+    finalChatId = sanitize(finalChatId);
+    let sanitizedMessage = sanitize(message);
 
-    if (!finalChatId || !message) {
+    if (!finalChatId || !sanitizedMessage) {
         return res.status(400).json({ error: 'Missing required fields: chatId (or default chatId in config), message' });
     }
 
-    const data = { chatId: finalChatId, message };
+    const data = { chatId: finalChatId, message: sanitizedMessage };
 
     // Get delay in milliseconds if provided
-    const convertedDelay = delay ? parseInt(delay, 10) : false;
+    const convertedDelay = delay ? parseInt(sanitize(delay), 10) : false;
     let job;
 
     if (convertedDelay) {
@@ -48,13 +51,15 @@ router.post('/send-cron-telegram', async (req, res) => {
     const { chatId, message } = req.body;
 
     // Use default chatId if not provided
-    const finalChatId = chatId || config.telegram.defaultChatId;
+    let finalChatId = chatId || config.telegram.defaultChatId;
+    finalChatId = sanitize(finalChatId);
+    const sanitizedMessage = sanitize(message);
 
-    if (!finalChatId || !message) {
+    if (!finalChatId || !sanitizedMessage) {
         return res.status(400).json({ error: 'Missing required fields: chatId (or default chatId in config), message' });
     }
 
-    const data = { chatId: finalChatId, message };
+    const data = { chatId: finalChatId, message: sanitizedMessage };
 
     const job = await telegramQueue.upsertJobScheduler('cron-telegram', {
         pattern: '0 * * * * 0', // every Sunday at midnight
@@ -74,10 +79,11 @@ router.post('/send-cron-telegram', async (req, res) => {
 router.delete('/stop-cron-telegram', async (req, res) => {
     const { jobname } = req.body;
 
-    if (jobname !== undefined) {
-        const removed = await telegramQueue.removeJobScheduler(jobname);
+    const validatedJobName = jobname ? sanitize(jobname) : undefined;
+    if (validatedJobName !== undefined) {
+        const removed = await telegramQueue.removeJobScheduler(validatedJobName);
         res.json({
-            message: removed ? `Cron job with name ${jobname} stopped` : `Cron job with name ${jobname} not found`,
+            message: removed ? `Cron job with name ${validatedJobName} stopped` : `Cron job with name ${validatedJobName} not found`,
             removed
         });
     }
