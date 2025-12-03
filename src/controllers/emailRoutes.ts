@@ -1,7 +1,6 @@
 import express from 'express';
 import { emailQueue } from '../queues/queueFactory';
-import { validateEmails } from '../validations/emailValidations';
-import { log } from 'console';
+import { validateEmails, validateSubject, sanitize } from '../validations/validations';
 const router = express.Router();
 
 // Health check
@@ -22,12 +21,17 @@ router.post('/send-email', async (req, res) => {
         return res.status(400).json({ error: 'No valid email addresses provided' });
     }
 
+    let validatedSubject = validateSubject(subject);
+    validatedSubject = sanitize(subject);
+    let validatedBody = sanitize(body);
+
+
     // Get delay in milliseconds if provided
     const convertedDelay = delay ? parseInt(delay, 10) : false;
 
     const jobs = await Promise.all(
         validatedEmails.map(async (email: string) => {
-            const data = { to: email, subject, body };
+            const data = { to: email, subject: validatedSubject, body: validatedBody };
             if (convertedDelay) {
                 return await emailQueue.add('delayed-email', data, {
                     delay: convertedDelay
@@ -50,20 +54,34 @@ router.post('/send-email', async (req, res) => {
  * Schedules a recurring email job based on the provided cron pattern
  */
 router.post('/send-cron-email', async (req, res) => {
-    const { to, subject, body } = req.body;
+    const { to, subject, body, cronPattern } = req.body;
 
-    const data = { to, subject, body };
     if (!to || !subject || !body) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    let validatedEmails = validateEmails(Array.isArray(to) ? to : [to]);
+    if (validatedEmails.length === 0) {
+        return res.status(400).json({ error: 'No valid email addresses provided' });
+    }
 
-    const job = await emailQueue.upsertJobScheduler('cron-email', {
-        pattern: '0 * * * * 0',
-    }, { data: data })
+    let validatedSubject = validateSubject(subject);
+    validatedSubject = sanitize(subject);
+    let validatedBody = sanitize(body);
+
+    const jobs = await Promise.all(
+        validatedEmails.map(async (email: string) => {
+            const data = { to: email, subject: validatedSubject, body: validatedBody };
+            return await emailQueue.upsertJobScheduler('cron-email', {
+                pattern: cronPattern || '0 * * * *',
+            }, { data: data })
+        })
+    );
+
     res.json({
         message: 'Email job queued',
-        jobId: job.id,
+        jobIds: jobs.map(job => job.id),
+        count: jobs.length
     });
 });
 
@@ -75,11 +93,13 @@ router.post('/send-cron-email', async (req, res) => {
 router.delete('/stop-cron-email', async (req, res) => {
     const { jobname } = req.body;
 
+    let validatedJobName = sanitize(jobname);
+
     console.log(jobname)
-    if (jobname !== undefined) {
-        const removed = await emailQueue.removeJobScheduler(jobname);
+    if (validatedJobName !== undefined) {
+        const removed = await emailQueue.removeJobScheduler(validatedJobName);
         res.json({
-            message: removed ? `Cron job with name ${jobname} stopped` : `Cron job with name ${jobname} not found`,
+            message: removed ? `Cron job with name ${validatedJobName} stopped` : `Cron job with name ${validatedJobName} not found`,
             removed
         });
     }
