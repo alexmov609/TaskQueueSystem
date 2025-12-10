@@ -5,11 +5,6 @@ import EmailService from '../services/EmailService';
 
 // Get instance by singelton pattern
 const emailService = EmailService.getInstance();
-
-
-
-// sendMail();
-
 export async function processEmailJob(job: Job<EmailJobData>): Promise<void> {
     const { to, subject, body } = job.data;
     const jobData = { to, subject, body };

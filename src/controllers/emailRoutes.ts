@@ -1,11 +1,18 @@
 import express from 'express';
 import { emailQueue } from '../queues/queueFactory';
 import { validateEmails, validateSubject, sanitize } from '../validations/validations';
+import { getQueueStatistics } from '../utils/queueMonitor';
 const router = express.Router();
 
 // Health check
 router.get('/health', (req, res) => {
     res.json({ status: 'ok' });
+});
+
+// Get queue statistics
+router.get('/queue-stats', async (req, res) => {
+    const stats = await getQueueStatistics(emailQueue);
+    res.json(stats);
 });
 
 // Add email job
@@ -28,7 +35,6 @@ router.post('/send-email', async (req, res) => {
 
     // Get delay in milliseconds if provided
     const convertedDelay = delay ? parseInt(delay, 10) : false;
-
     const jobs = await Promise.all(
         validatedEmails.map(async (email: string) => {
             const data = { to: [email], subject: validatedSubject, body: validatedBody };

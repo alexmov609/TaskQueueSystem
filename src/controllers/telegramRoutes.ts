@@ -2,10 +2,17 @@ import express from 'express';
 import { telegramQueue } from '../queues/queueFactory';
 import { sanitize } from '../validations/validations';
 import config from '../config/config';
+import { getQueueStatistics } from '../utils/queueMonitor';
 const router = express.Router();
 
 router.get('/health', (req, res) => {
     res.json({ status: 'ok' });
+});
+
+// Get queue statistics
+router.get('/queue-stats', async (req, res) => {
+    const stats = await getQueueStatistics(telegramQueue);
+    res.json(stats);
 });
 
 /**
