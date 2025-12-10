@@ -99,8 +99,5 @@ export function handleAlert(queueName: string, stats: QueueStatistics, reasons: 
     console.error(`   Current Stats: W:${stats.waiting} A:${stats.active} C:${stats.completed} F:${stats.failed}\n`);
 
     // TODO: Implement additional alerting mechanisms here:
-    // - Send email to admin
-    // - Send Slack/Discord notification
-    // - Trigger PagerDuty alert
-    // - Log to monitoring service (DataDog, New Relic, etc.)
+    // - Send email to admin or Telegram notification
 }
