@@ -19,6 +19,17 @@ createBullBoard({
         new BullMQAdapter(telegramQueue)
     ],
     serverAdapter,
+    options: {
+        uiConfig: {
+            boardTitle: 'Alex Movchan Board',
+            boardLogo: {
+                path: '',
+                width: '0',
+                height: 0,
+            },
+            miscLinks: [{ text: 'Logout', url: '/logout' }],
+        },
+    },
 });
 
 // UI dahsboard, http://localhost:3000/admin/queues
