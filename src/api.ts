@@ -13,10 +13,11 @@ app.use(express.json());
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath('/admin/queues');
 
+
 createBullBoard({
     queues: [
-        new BullMQAdapter(emailQueue),
-        new BullMQAdapter(telegramQueue)
+        new BullMQAdapter(emailQueue, { description: 'Handles sending emails to users with nodemailer library.' }),
+        new BullMQAdapter(telegramQueue, { description: 'Handles sending Telegram notifications to users via Telegram Bot API.' }),
     ],
     serverAdapter,
     options: {
